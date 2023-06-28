@@ -1,32 +1,114 @@
 import { Component } from '@angular/core';
+import { User } from './model/user'
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    <router-outlet></router-outlet>
+  <div *ngIf="nameRef.errors">
+  <div *ngIf="nameRef.errors['required']">Il campo nome è obbligatorio</div>
+  <div *ngIf="nameRef.errors['minlength']">Nome troppo corto</div>
+  </div>
+
+  <div *ngIf="ageRef.errors">
+  <div *ngIf="ageRef.errors['required']">Il campo è obbligatorio</div>
+  </div>
+  
+  <pre>{{nameRef.errors | json}}</pre>
+<form #f="ngForm" (submit)="add(f)">
+  <input #nameRef="ngModel" [ngClass]="{'error' : !f.valid && f.touched}" required minlength="3" type="text" placholder="insert username" [ngModel]="label" name="label">
+  <input #ageRef="ngModel" [ngClass]="{'error' : !f.valid && f.touched}" required type="number" placholder="insert age" [ngModel]="age" name="age">
+  <input type="text" placholder="insert city" [ngModel]="city" name="city">
+  <input type="text" placeholder="insert the color" [ngModel]="color" name="color">
+  <button type="submit" [disabled]="!f.valid">ADD</button>
+</form>
+<li *ngFor="let user of users" [style.background]="user.color">
+  {{user.label}} - {{user.age}} - {{user.city}} - {{user.color}}
+  </li>
+  <pre>{{f.dirty}}</pre>
+  <pre>{{f.valid}}</pre>
+  <pre>{{f.touched}}</pre>
+
+<hr>
+
+<form #f1="ngForm" (submit)="add1(f1)" >
+  <input #nameRef1="ngModel" [ngClass]="{'error' : !f1.valid && f1.touched}" required minlength="3" type="text" placholder="insert username" [ngModel]="user?.label" name="label">
+  <input #ageRef1="ngModel" [ngClass]="{'error' : !f1.valid && f1.touched}" required type="number" placholder="insert age" [ngModel]="user?.age" name="age">
+  <input type="text" placholder="insert city" [ngModel]="user?.city" name="city">
+  <input type="text" placeholder="insert the color" [ngModel]="user?.color" name="color">
+  <button type="submit" [disabled]="!f1.valid">ADD</button>
+</form>
+<li *ngFor="let user of users" [style.background]="user.color">
+  {{user.label}} - {{user.age}} - {{user.city}} - {{user.color}}
+  </li>
+  <pre>{{f1.dirty}}</pre>
+  <pre>{{f1.valid}}</pre>
+  <pre>{{f1.touched}}</pre>
+
+  <hr>
+  
+<form #f2="ngForm" (submit)="add2(f2)">
+  <input #nameRef2="ngModel" [ngClass]="{'error' : !f2.valid && f2.touched}" required minlength="3" type="text" placholder="insert username" [ngModel] name="label">
+  <input #ageRef2="ngModel" [ngClass]="{'error' : !f2.valid && f2.touched}" required type="number" placholder="insert age" [ngModel] name="age">
+  <input type="text" placholder="insert city" [ngModel] name="city">
+  <input type="text" placeholder="insert the color" [ngModel] name="color">
+  <button type="submit" [disabled]="!f2.valid">{{user ? 'EDIT' : 'ADD'}}</button>
+</form>
+<li *ngFor="let user of users" [style.background]="user.color" (click)="setActive(user)">
+  {{user.label}} - {{user.age}} - {{user.city}} - {{user.color}}
+  </li>
+  <pre>{{f2.dirty}}</pre>
+  <pre>{{f2.valid}}</pre>
+  <pre>{{f2.touched}}</pre>
   `,
-  styles: []
+  styles: [`
+  .error { background-color: red }
+  `]
 })
 export class AppComponent {
-  title = 'myApp5';
+user: User | undefined;
+
+  label: string = '';
+  age: number = 0;
+  city: string = '';
+  color: string = '';
+
+  users: User[] = [
+  ];
+//tre metodi add solo a scopo informativo per dimostrare le differenze nelle diverse procedure di svolgimento
+  add(form: NgForm) {
+    this.users.push(form.value);
+    console.log(form.value.label);
+    console.log(form.value.age);
+    console.log(form.value.city);
+    console.log(form.value.color);
+    console.log(this.users);
+    form.reset();
+  }
+
+  add1(form: NgForm) {
+    this.users.push(form.value);
+    console.log(form.value.label);
+    console.log(form.value.age);
+    console.log(form.value.city);
+    console.log(form.value.color);
+    console.log(this.users);
+    form.reset();
+  }
+
+  add2(form: NgForm) {
+    this.users.push(form.value);
+    console.log(form.value.label);
+    console.log(form.value.age);
+    console.log(form.value.city);
+    console.log(form.value.color);
+    console.log(this.users);
+    form.reset();
+  }
+
+  setActive(user: User) {
+    this.user = user;
+  }
+
+  
 }
